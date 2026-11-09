@@ -121,6 +121,12 @@ const server=http.createServer(async(req,res)=>{
     send(res,404,{error:'Unbekannter Endpunkt.'});
   }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
 });
+server.on('error',error=>{
+  console.error(error.code==='EADDRINUSE'
+    ?'Port '+port+' ist bereits belegt. Excel-Dienst nur einmal starten oder BELEGE_PORT ändern.'
+    :'Excel-Dienst konnte nicht gestartet werden: '+error.message);
+  process.exitCode=1;
+});
 server.requestTimeout=180000;
 server.listen(port,'127.0.0.1',()=>{
   console.log('Excel-Verbindung bereit auf http://127.0.0.1:'+server.address().port);

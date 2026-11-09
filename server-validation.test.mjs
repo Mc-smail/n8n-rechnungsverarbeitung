@@ -91,3 +91,8 @@ test('eine beschädigte Wartedatei blockiert keine weiteren wiederholbaren Beleg
 test('ungültige Portkonfiguration hat eine verständliche Startmeldung',async t=>{
   for(const port of ['-1','1.5','abc','65536',''])await assert.rejects(()=>startService(t,{port}),/BELEGE_PORT muss/);
 });
+
+test('doppelter Serverstart erklärt den bereits belegten Port',async t=>{
+  const first=await startService(t);
+  await assert.rejects(()=>startService(t,{port:new URL(first.address).port}),/bereits belegt/);
+});
