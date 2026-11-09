@@ -51,3 +51,7 @@ test('fehlende Ausleseantwort erzeugt einen nachvollziehbaren Fehleraudit',async
   assert.equal(ledger.Rechnungen.length,0);assert.equal(ledger.Audit_Log.length,1);
   assert.match(ledger.Audit_Log[0].Probleme,/keinen lesbaren JSON/);
 });
+
+test('ein leeres gespeichertes Token darf keine Anmeldung ohne Passwort erlauben',async t=>{
+  await assert.rejects(()=>startService(t,{storedToken:'   '}),/Verbindungstoken ist leer/);
+});

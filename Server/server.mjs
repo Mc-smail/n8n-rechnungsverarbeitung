@@ -15,6 +15,7 @@ const demoFile=path.join(dataDir,'demo-rechnungen.xlsx');
 await fs.mkdir(privateDir,{recursive:true,mode:0o700});
 const tokenFile=path.join(privateDir,'bridge-token');
 let token;try{token=(await fs.readFile(tokenFile,'utf8')).trim();}catch(error){if(error.code!=='ENOENT')throw error;token=randomBytes(32).toString('hex');await fs.writeFile(tokenFile,token,{mode:0o600,flag:'wx'});}
+if(!token)throw Error('Lokales Verbindungstoken ist leer. bridge-token entfernen und Dienst neu starten.');
 try {
   await fs.access(workbookFile);
 } catch (error) {

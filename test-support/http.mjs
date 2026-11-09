@@ -4,11 +4,15 @@ import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 
-export async function startService(t) {
+export async function startService(t, {storedToken, port = '0'} = {}) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'belege-http-'));
+  if(storedToken!==undefined){
+    await fs.mkdir(path.join(directory,'private'));
+    await fs.writeFile(path.join(directory,'private/bridge-token'),storedToken);
+  }
   const server = spawn(process.execPath, ['Server/server.mjs'], {
     cwd: path.resolve(import.meta.dirname, '..'),
-    env: {...process.env, BELEGE_DATA_DIR: directory, BELEGE_PORT: '0'},
+    env: {...process.env, BELEGE_DATA_DIR: directory, BELEGE_PORT: port},
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const stopped = once(server, 'exit');
