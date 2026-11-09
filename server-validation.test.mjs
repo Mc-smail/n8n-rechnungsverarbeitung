@@ -96,3 +96,10 @@ test('doppelter Serverstart erklärt den bereits belegten Port',async t=>{
   const first=await startService(t);
   await assert.rejects(()=>startService(t,{port:new URL(first.address).port}),/bereits belegt/);
 });
+
+test('falsche HTTP-Methode nennt die erlaubte Methode',async t=>{
+  const {raw}=await startService(t);
+  const response=await raw('/process');
+  assert.equal(response.status,405);assert.equal(response.headers.get('allow'),'POST');await response.json();
+  assert.equal((await raw('/does-not-exist')).status,404);
+});

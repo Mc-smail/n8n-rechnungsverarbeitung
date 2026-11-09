@@ -118,7 +118,9 @@ const server=http.createServer(async(req,res)=>{
       }
       send(res,failed.length?207:200,{ok:failed.length===0,results,failed});return;
     }
-    send(res,404,{error:'Unbekannter Endpunkt.'});
+    const methods={'/health':'GET','/process':'POST','/demo/process':'POST','/pending':'GET','/replay':'POST'};
+    if(methods[req.url]){res.setHeader('allow',methods[req.url]);send(res,405,{ok:false,error:'Für diesen Endpunkt ist '+methods[req.url]+' erforderlich.'});return;}
+    send(res,404,{ok:false,error:'Unbekannter Endpunkt.'});
   }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
 });
 server.on('error',error=>{
