@@ -103,7 +103,18 @@ const server=http.createServer(async(req,res)=>{
     if(!authorized(req)){send(res,401,{ok:false,error:'Lokale Verbindung ist nicht authentifiziert.'});return;}
     if(['/process','/demo/process'].includes(req.url)&&req.method==='POST'){send(res,200,await handleEvent(await body(req),req.url.startsWith('/demo/')));return;}
     if(req.url==='/pending'&&req.method==='GET'){const files=await pendingFiles(path.join(privateDir,'pending'));send(res,200,{anzahl:files.length});return;}
-    if(req.url==='/replay'&&req.method==='POST'){const dir=path.join(privateDir,'pending');const files=await pendingFiles(dir);const results=[];for(const file of files.filter(f=>f.endsWith('.json'))){const event=JSON.parse(await fs.readFile(path.join(dir,file),'utf8'));results.push(await handleEvent(event,false));await fs.unlink(path.join(dir,file)).catch(()=>{});}send(res,200,{results});return;}
+    if(req.url==='/replay'&&req.method==='POST'){
+      const dir=path.join(privateDir,'pending');const files=await pendingFiles(dir);
+      const results=[],failed=[];
+      for(const file of files){
+        try{
+          const event=JSON.parse(await fs.readFile(path.join(dir,file),'utf8'));
+          results.push(await handleEvent(event,false));
+          await fs.rm(path.join(dir,file),{force:true});
+        }catch(error){failed.push({file,error:redact(error.message)});}
+      }
+      send(res,failed.length?207:200,{ok:failed.length===0,results,failed});return;
+    }
     send(res,404,{error:'Unbekannter Endpunkt.'});
   }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
 });

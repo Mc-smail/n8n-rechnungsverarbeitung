@@ -74,3 +74,16 @@ test('Warteschlangenzähler ignoriert Systemdateien und Verzeichnisse',async t=>
   await fs.writeFile(path.join(pending,'saved.json'),'{}');
   assert.equal((await request('/pending')).data.anzahl,1);
 });
+
+test('eine beschädigte Wartedatei blockiert keine weiteren wiederholbaren Belege',async t=>{
+  const {directory,request}=await startService(t);
+  const pending=path.join(directory,'private/pending');await fs.mkdir(pending);
+  await fs.writeFile(path.join(pending,'a-broken.json'),'{broken');
+  const input=event();input.response.content[0].text=JSON.stringify({...JSON.parse(input.response.content[0].text),belegart:'Sonstiges'});
+  await fs.writeFile(path.join(pending,'b-valid.json'),JSON.stringify(input));
+  const response=await request('/replay',{});
+  assert.equal(response.status,207);assert.equal(response.data.ok,false);
+  assert.equal(response.data.results.length,1);assert.equal(response.data.results[0].ergebnis,'kein Beleg');
+  assert.equal(response.data.failed[0].file,'a-broken.json');
+  assert.equal((await request('/pending')).data.anzahl,1);
+});
