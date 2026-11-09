@@ -17,3 +17,14 @@ test('Rechnungsnummern aus Formelergebnissen bleiben Kennungen und verhindern Du
   const result=processDocument(event(invoice({rechnungsnummer:'123'}),2),ledger);
   assert.equal(result.audit.Ergebnis,'Dublette');assert.equal(result.invoices.length,0);
 });
+
+test('teilweise formatierte Kreditorennamen bleiben beim Namensabgleich erhalten',()=>{
+  const workbook=createWorkbook({demo:true});
+  appendResult(workbook,processDocument(event(),readLedger(workbook)));
+  cell(workbook,'Kreditoren','Name').value={richText:[{text:'DEMO '},{text:'Haustechnik GmbH',font:{bold:true}}]};
+  const ledger=readLedger(workbook);
+  assert.equal(ledger.Kreditoren[0].Name,'DEMO Haustechnik GmbH');
+  const document=invoice({rechnungsnummer:'NAME-002'});document.kreditor.ust_id=null;document.kreditor.iban=null;
+  const result=processDocument(event(document,2),ledger);
+  assert.equal(result.audit.Kreditorabgleich,'Name');assert.equal(result.vendors.length,0);
+});
