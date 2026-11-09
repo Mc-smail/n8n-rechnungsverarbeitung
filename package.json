@@ -5,7 +5,8 @@
   "description": "PDF-Rechnungen mit n8n und Claude auslesen, prüfen und in Excel erfassen",
   "scripts": {
     "start": "node Server/server.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "demo": "node scripts/demo.mjs"
   },
   "engines": {
     "node": ">=22"
