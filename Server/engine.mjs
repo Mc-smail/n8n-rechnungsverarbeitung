@@ -136,13 +136,14 @@ function resolveVendor(supplier,rows,now){
 
 export function processDocument(event,ledger,{now=new Date().toISOString(),tolerance=0.02}={}){
   const meta=event.meta??{}, pdfHash=event.pdfHash??'', response=event.response;
-  const sourceKey=[meta.mailbox??'Manueller Upload',meta.messageId??meta.submittedAt??'',meta.attachmentIndex??0,meta.filename??'',pdfHash].join('|');
+  const sourceId=clean(meta.messageId)?meta.messageId:meta.submittedAt??'';
+  const sourceKey=[meta.mailbox??'Manueller Upload',sourceId,meta.attachmentIndex??0,meta.filename??'',pdfHash].join('|');
   const auditId='A-'+hash(sourceKey).slice(0,24);
   const prior=ledger.Audit_Log.find(row=>row.AuditID===auditId);
   if(prior&&!['Fehler','Objekt unbekannt'].includes(prior.Ergebnis))return {audit:prior,invoices:[],positions:[],vendors:[],idempotent:true};
   const problems=[],hints=[],missing=[],derived=[],calculationProblems=[];
   const calculationProblem=message=>{calculationProblems.push(message);problems.push(message);};
-  const audit={AuditID:auditId,Zeitpunkt:now,'Mail-Konto':meta.mailbox??'Manueller Upload','Mail-ID':meta.messageId??meta.submittedAt??'','Mail-Datum':meta.date??'',Absender:meta.from??'',Betreff:meta.subject??'',Dateiname:meta.filename??'',Ergebnis:'Fehler',RechnungID:'',KreditorID:'',ObjektID:'',Kreditor:'',Rechnungsnummer:'',Belegart:'',Datum:'',Netto:null,USt:null,Brutto:null,Verbrauchsstelle:'',Kreditorabgleich:'','Fehlende Pflichtfelder':'',Probleme:'',Prüfhinweis:'','Manuell prüfen':'Nein',PDF_SHA256:pdfHash,Modell:response?.model??'', 'Input-Token':response?.usage?.input_tokens??null,'Output-Token':response?.usage?.output_tokens??null,Antwortdatei:event.evidenceFile??''};
+  const audit={AuditID:auditId,Zeitpunkt:now,'Mail-Konto':meta.mailbox??'Manueller Upload','Mail-ID':sourceId,'Mail-Datum':meta.date??'',Absender:meta.from??'',Betreff:meta.subject??'',Dateiname:meta.filename??'',Ergebnis:'Fehler',RechnungID:'',KreditorID:'',ObjektID:'',Kreditor:'',Rechnungsnummer:'',Belegart:'',Datum:'',Netto:null,USt:null,Brutto:null,Verbrauchsstelle:'',Kreditorabgleich:'','Fehlende Pflichtfelder':'',Probleme:'',Prüfhinweis:'','Manuell prüfen':'Nein',PDF_SHA256:pdfHash,Modell:response?.model??'', 'Input-Token':response?.usage?.input_tokens??null,'Output-Token':response?.usage?.output_tokens??null,Antwortdatei:event.evidenceFile??''};
   const result={audit,invoices:[],positions:[],vendors:[],replaceAudit:!!prior};
   audit.Auslesemodus=event.mode??'Claude API';
   const finish=(outcome,extraHint='')=>{

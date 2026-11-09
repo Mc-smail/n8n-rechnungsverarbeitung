@@ -38,3 +38,15 @@ test('Steuerprüfung erkennt falschen Steuersatz',()=>{const doc=invoice();doc.p
 test('IBAN-Prüfziffer wird validiert',()=>{assert.equal(validIban('DE89 3704 0044 0532 0130 00'),true);assert.equal(validIban('DE88 3704 0044 0532 0130 00'),false);});
 test('eindeutig angekündigtes Lastschriftdatum wird nachvollziehbar übernommen',()=>{const result=run(invoice({faelligkeit:null,zahlungsbedingungen:'Die Nachzahlung buchen wir am 30.01.2026 per Lastschrift ab.'}));assert.equal(result.invoices[0]['Fälligkeit'],'2026-01-30');assert.match(result.invoices[0].Faelligkeit_Herleitung,/Lastschrift/);assert.doesNotMatch(result.audit['Fehlende Pflichtfelder'],/Fälligkeit/);});
 test('mehrere Daten in Zahlungsbedingungen werden nicht als eine Fälligkeit erraten',()=>{const result=run(invoice({faelligkeit:null,zahlungsbedingungen:'Lastschrift am 30.01.2026; nächster Abschlag am 15.02.2026.'}));assert.equal(result.invoices[0]['Fälligkeit'],null);assert.match(result.audit['Fehlende Pflichtfelder'],/Fälligkeit/);});
+
+test('leere Mail-ID verwendet die Upload-ID für neue Zustellungen',()=>{
+  const ledger=state();
+  const first=event();first.meta.messageId='';first.meta.submittedAt='upload-001';
+  applyResult(ledger,processDocument(first,ledger));
+  const second=structuredClone(first);second.meta.submittedAt='upload-002';
+  const result=processDocument(second,ledger);
+  assert.equal(result.audit.Ergebnis,'Dublette');
+  assert.equal(result.audit['Mail-ID'],'upload-002');
+  assert.notEqual(result.audit.AuditID,ledger.Audit_Log[0].AuditID);
+  assert.equal(result.idempotent,undefined);
+});
