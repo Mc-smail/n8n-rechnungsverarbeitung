@@ -38,3 +38,13 @@ test('Fremdwährungen werden als solche ausgewiesen und nicht als Euro formatier
   assert.doesNotMatch(cell(workbook,'Rechnungen','Brutto').numFmt,/€/);
   assert.match(ledger.Audit_Log[0].Probleme,/nicht EUR/);
 });
+
+test('neue Tabellen bieten gespeicherte Auswahllisten zur manuellen Nachprüfung',async t=>{
+  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'belege-lists-'));
+  t.after(()=>fs.rm(directory,{recursive:true,force:true}));
+  const file=path.join(directory,'lists.xlsx');await saveWorkbook(createWorkbook(),file);
+  const workbook=await loadWorkbook(file);
+  assert.equal(cell(workbook,'Objekte','Status').dataValidation.type,'list');
+  assert.match(cell(workbook,'Rechnungen','Belegart').dataValidation.formulae[0],/Gutschrift/);
+  assert.match(cell(workbook,'Rechnungspositionen','Kategorie',100).dataValidation.formulae[0],/Reparatur/);
+});

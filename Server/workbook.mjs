@@ -133,6 +133,8 @@ function styleRow(row, headers) {
     cell.font = {name: 'Arial', size: 10, color: {argb: 'FF243649'}};
     cell.numFmt = numberFormat(header);
     cell.alignment = {vertical: 'middle', wrapText: wrap.has(header)};
+    const options = choices[row.worksheet.name]?.[header];
+    if (options) cell.dataValidation = choiceValidation(options);
     if (wrap.has(header) && typeof cell.value === 'string') {
       const requiredLines = cell.value.split('\n').reduce(
         (total, line) => total + Math.max(1, Math.ceil(line.length / (columnWidth(header) - 4))), 0);
@@ -148,7 +150,26 @@ function styleRow(row, headers) {
   row.height = Math.min(180, Math.max(23, lines * 14 + 9));
 }
 
+const choices = {
+  Objekte: {Status: ['aktiv', 'zu prüfen']},
+  Kreditoren: {Status: ['zu prüfen', 'geprüft']},
+  Rechnungen: {Status: ['Erfasst', 'Klärung'], Belegart: ['Rechnung', 'Gutschrift', 'Abrechnung']},
+  Rechnungspositionen: {Kategorie: ['Wartung', 'Reparatur', 'Energie', 'Wasser', 'Entsorgung', 'Versicherung', 'Reinigung', 'Sonstiges']},
+};
+function choiceValidation(values) {
+  return {
+    type: 'list', allowBlank: true, formulae: ['"' + values.join(',') + '"'],
+    showErrorMessage: true, errorStyle: 'warning', errorTitle: 'Auswahl prüfen',
+    error: 'Bitte einen vorgeschlagenen Wert wählen oder die eigene Eingabe bewusst bestätigen.',
+  };
+}
 function styleNewSheet(sheet, headers) {
+  for (const [header, values] of Object.entries(choices[sheet.name] ?? {})) {
+    const letter = sheet.getColumn(headers.indexOf(header) + 1).letter;
+    // Bound template ranges: ExcelJS expands validations when loading a file.
+    // Appended rows receive their own validation in styleRow, beyond row 1000 too.
+    sheet.dataValidations.add(letter + '2:' + letter + '1000', choiceValidation(values));
+  }
   for (const [index, header] of headers.entries()) {
     const column = sheet.getColumn(index + 1);
     column.width = columnWidth(header);
