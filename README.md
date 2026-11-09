@@ -1,5 +1,7 @@
 # Rechnungsverarbeitung mit n8n, Claude und Excel
 
+[![Tests](https://github.com/Mc-smail/n8n-rechnungsverarbeitung/actions/workflows/tests.yml/badge.svg)](https://github.com/Mc-smail/n8n-rechnungsverarbeitung/actions/workflows/tests.yml)
+
 Der Workflow liest Rechnungen, Gutschriften und Abrechnungen aus PDF-Dateien. Er ordnet jeden Beleg einem verwalteten Objekt zu, prüft Beträge und Dubletten und schreibt die Ergebnisse in eine lokale Excel-Arbeitsmappe. Im Audit-Log steht, was mit jedem Beleg passiert ist und wann eine manuelle Prüfung nötig ist.
 
 ## Ablauf
@@ -23,6 +25,17 @@ flowchart LR
 | Gutschriften und sonstige Schreiben | Erfasst Gutschriften mit negativen Beträgen und protokolliert sonstige Schreiben als **Kein Beleg**. |
 
 Die Arbeitsmappe enthält die Tabellen **Objekte**, **Einheiten**, **Kreditoren**, **Rechnungen**, **Rechnungspositionen** und **Audit_Log**. Ein Audit-Eintrag enthält unter anderem Dateiname, Herkunft, Ergebnis, Prüfhinweis und Laufzeit in Sekunden. Zeitstempel in der Arbeitsmappe verwenden UTC.
+
+## Schnell ausprobieren
+
+Für eine erste Excel-Ausgabe genügt Node.js ab Version 22. Die Offline-Demo verwendet acht erfundene Ereignisse und benötigt weder n8n noch API-Zugangsdaten.
+
+```bash
+npm ci
+npm run demo
+```
+
+Das Ergebnis liegt unter `data/offline-demo.xlsx`: vier erfasste Buchungsbelege und acht Audit-Zeilen. Ein wiederholter Aufruf überschreibt die Datei nicht. Mit `npm run demo -- --output data/zweiter-test.xlsx` lässt sich ein neuer Ausgabename wählen.
 
 ## Lokal starten
 
@@ -60,9 +73,19 @@ Ist die Excel-Datei beim Schreiben geöffnet, speichert der Dienst den Vorgang z
 npm test
 ```
 
-Die 45 automatisierten Tests prüfen die Beleglogik und den Weg vom lokalen HTTP-Endpunkt bis zur gespeicherten XLSX-Datei. Dafür verwenden sie synthetische Eingaben und ein temporäres Verzeichnis.
+Die automatisierten Tests prüfen die Beleglogik, die Workflow-Exporte und den Weg vom lokalen HTTP-Endpunkt bis zur gespeicherten XLSX-Datei. Zusätzlich decken sie gleichzeitige Zustellungen, Eingabefehler, gespeicherte Wiederholungen und die Offline-Demo ab. Sie verwenden synthetische Eingaben und temporäre Verzeichnisse; es entstehen keine Claude-API-Aufrufe.
+
+[GitHub Actions](.github/workflows/tests.yml) führt die Tests mit Node.js 22 und 24 auf Linux und macOS aus. Der aktuelle Laufstatus ist über das Tests-Badge oben erreichbar. Die GitHub-Tests prüfen die exportierten Workflows und deren eingebettete Anfrage, führen aber keine angemeldete n8n-Instanz oder echte Postfächer aus.
 
 Im ursprünglichen n8n-Praxistest wurden fünf anonymisierte PDFs in zwei Durchläufen mit der Claude API verarbeitet. Der erste Lauf schrieb vier Buchungsbelege mit 13 Positionen. Der zweite protokollierte vier Dubletten. Das Informationsschreiben erschien in beiden Läufen als **Kein Beleg**.
+
+## Dokumentation
+
+- [Datenmodell und Tabellenbeziehungen](docs/datenmodell.md): IDs, Objektzuordnung, Dubletten und technische Wiederholungen.
+- [Lokale Schnittstelle und Fehlerbehebung](docs/api.md): Eingaben, Statuscodes, Ports und Wiederholung fehlgeschlagener Schreibvorgänge.
+- [Daten und Zugänge](docs/datenschutz.md): Claude-Übertragung, lokale Belegprotokolle und Aufbewahrung.
+
+Neue Arbeitsmappen zeigen die Belegwährung ausdrücklich in Rechnungen, Positionen und Audit. Geldbeträge bleiben in der ursprünglichen Währung; es findet keine Währungsumrechnung statt. Auswahllisten unterstützen die manuelle Prüfung von Status, Belegart und Kategorie. Vorhandene Arbeitsmappen werden nicht automatisch auf neue Zusatzspalten migriert.
 
 ## Projektstruktur
 
@@ -73,5 +96,7 @@ Im ursprünglichen n8n-Praxistest wurden fünf anonymisierte PDFs in zwei Durchl
 | [`Server/engine.mjs`](Server/engine.mjs) | Objektzuordnung, Rechenprüfung und Dublettenlogik |
 | [`Server/workbook.mjs`](Server/workbook.mjs) | Excel-Tabellen und Formatierung mit ExcelJS |
 | [`Server/server.mjs`](Server/server.mjs) | Lokale HTTP-Verbindung, Schreibsperre und Wiederholung |
+| [`scripts/demo.mjs`](scripts/demo.mjs) | Offline-Demo ohne API-Zugang |
+| [`docs/`](docs/) | Datenmodell, Schnittstelle und Datenhaltung |
 
 Für die Veröffentlichung verwendet die Excel-Anbindung die öffentlich installierbare Bibliothek ExcelJS und erzeugt ihre eigene Vorlage. Workflow-Exporte enthalten keine Zugangsdaten. Dateien unter `data/` sind für den lokalen Betrieb vorgesehen. PDFs aus dem Hauptworkflow werden zur Auslesung an die Claude API übertragen.
