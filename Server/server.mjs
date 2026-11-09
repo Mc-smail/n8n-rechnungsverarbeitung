@@ -55,7 +55,7 @@ async function handleEvent(input,demo){
   if(input.pdfBase64!=null&&typeof input.pdfBase64!=='string')throw httpError(400,'pdfBase64 muss Base64-Text sein.');
   const event={meta:input.meta,response:input.response??null,error:input.error?redact(input.error):undefined,mode:demo?'Demodaten':'Claude API'};
   if(input.pdfBase64){const bytes=Buffer.from(input.pdfBase64,'base64');event.pdfHash=hash(bytes);if(!bytes.subarray(0,1024).includes(Buffer.from('%PDF-')))event.error='Datei enthält keinen gültigen PDF-Kopf.';}
-  else event.pdfHash=input.pdfHash??hash(JSON.stringify(input.response??input.error));
+  else event.pdfHash=input.pdfHash??hash(JSON.stringify(input.response??input.error??null));
   const eventId=hash(JSON.stringify(event));
   const evidenceDir=path.join(privateDir,demo?'demo-evidence':'evidence');
   await fs.mkdir(evidenceDir,{recursive:true,mode:0o700});

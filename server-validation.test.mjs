@@ -42,3 +42,12 @@ test('binäre PDF-Daten müssen als Base64-Text übergeben werden',async t=>{
   for(const pdfBase64 of [42,{},[]])assert.equal((await request('/process',{...event(),pdfBase64})).status,400);
   assert.equal((await request('/pending')).data.anzahl,0);
 });
+
+test('fehlende Ausleseantwort erzeugt einen nachvollziehbaren Fehleraudit',async t=>{
+  const {directory,request}=await startService(t);
+  const result=await request('/demo/process',{meta:event().meta});
+  assert.equal(result.status,200);assert.equal(result.data.ergebnis,'Fehler');
+  const ledger=readLedger(await loadWorkbook(path.join(directory,'demo-rechnungen.xlsx')));
+  assert.equal(ledger.Rechnungen.length,0);assert.equal(ledger.Audit_Log.length,1);
+  assert.match(ledger.Audit_Log[0].Probleme,/keinen lesbaren JSON/);
+});
