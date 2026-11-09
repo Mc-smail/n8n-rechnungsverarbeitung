@@ -88,7 +88,7 @@ async function handleEvent(input,demo){
         const temp=filename+'.'+eventId.slice(0,10)+'.tmp.xlsx';
         try{await saveWorkbook(workbook,temp);if(hash(await fs.readFile(filename))!==originalHash)throw Error('Excel wurde während der Verarbeitung verändert. Ereignis bleibt zur Wiederholung gespeichert.');await fs.rename(temp,filename);}finally{await fs.unlink(temp).catch(()=>{});}
       }
-      await fs.unlink(pendingPath);
+      await fs.rm(pendingPath,{force:true});
       return {ok:true,ergebnis:result.audit.Ergebnis,status:result.invoices[0]?.Status??null,manuellPruefen:result.audit['Manuell prüfen']==='Ja',pruefhinweis:result.audit.Prüfhinweis,probleme:result.audit.Probleme,auditId:result.audit.AuditID,rechnungId:result.audit.RechnungID,idempotent:result.idempotent??false,auditAktualisiert:result.replaceAudit??false,dateiname:event.meta.filename,auslesemodus:event.mode,dauer_s:result.audit.Dauer_s??null,datei:filename};
     }finally{if(lock){await lock.close();await fs.unlink(lockfile).catch(()=>{});}}
   });

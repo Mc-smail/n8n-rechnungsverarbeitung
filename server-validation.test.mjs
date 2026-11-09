@@ -55,3 +55,13 @@ test('fehlende Ausleseantwort erzeugt einen nachvollziehbaren Fehleraudit',async
 test('ein leeres gespeichertes Token darf keine Anmeldung ohne Passwort erlauben',async t=>{
   await assert.rejects(()=>startService(t,{storedToken:'   '}),/Verbindungstoken ist leer/);
 });
+
+test('zwei gleichzeitige identische Zustellungen schreiben und quittieren genau einmal',async t=>{
+  const {directory,request}=await startService(t);
+  const input=event();
+  const results=await Promise.all([request('/demo/process',input),request('/demo/process',input)]);
+  assert.deepEqual(results.map(r=>r.status),[200,200]);
+  assert.deepEqual(results.map(r=>r.data.idempotent).sort(),[false,true]);
+  const ledger=readLedger(await loadWorkbook(path.join(directory,'demo-rechnungen.xlsx')));
+  assert.equal(ledger.Rechnungen.length,1);assert.equal(ledger.Audit_Log.length,1);
+});
