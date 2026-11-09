@@ -8,6 +8,9 @@ import {hash,processDocument} from './engine.mjs';
 import {documentDurationSeconds} from './duration.mjs';
 import {loadWorkbook,readLedger,appendResult,saveWorkbook,createWorkbook} from './workbook.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const portValue=process.env.BELEGE_PORT??'5680';
+if(!/^\d+$/.test(portValue)||Number(portValue)>65535)throw Error('BELEGE_PORT muss eine ganze Zahl zwischen 0 und 65535 sein.');
+const port=Number(portValue);
 const dataDir=path.resolve(root,process.env.BELEGE_DATA_DIR??'data');
 const privateDir=path.join(dataDir,'private');
 const workbookFile=path.join(dataDir,'rechnungen.xlsx');
@@ -119,7 +122,7 @@ const server=http.createServer(async(req,res)=>{
   }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
 });
 server.requestTimeout=180000;
-server.listen(Number(process.env.BELEGE_PORT??5680),'127.0.0.1',()=>{
+server.listen(port,'127.0.0.1',()=>{
   console.log('Excel-Verbindung bereit auf http://127.0.0.1:'+server.address().port);
 });
 for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(()=>process.exit(0)));

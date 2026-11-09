@@ -87,3 +87,7 @@ test('eine beschädigte Wartedatei blockiert keine weiteren wiederholbaren Beleg
   assert.equal(response.data.failed[0].file,'a-broken.json');
   assert.equal((await request('/pending')).data.anzahl,1);
 });
+
+test('ungültige Portkonfiguration hat eine verständliche Startmeldung',async t=>{
+  for(const port of ['-1','1.5','abc','65536',''])await assert.rejects(()=>startService(t,{port}),/BELEGE_PORT muss/);
+});
