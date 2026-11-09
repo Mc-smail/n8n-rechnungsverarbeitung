@@ -105,20 +105,21 @@ const server=http.createServer(async(req,res)=>{
     if(req.url==='/health'&&req.method==='GET'){send(res,200,{ok:true,service:'Belege Excel lokal'});return;}
     if(!authorized(req)){send(res,401,{ok:false,error:'Lokale Verbindung ist nicht authentifiziert.'});return;}
     if(['/process','/demo/process'].includes(req.url)&&req.method==='POST'){send(res,200,await handleEvent(await body(req),req.url.startsWith('/demo/')));return;}
-    if(req.url==='/pending'&&req.method==='GET'){const files=await pendingFiles(path.join(privateDir,'pending'));send(res,200,{anzahl:files.length});return;}
-    if(req.url==='/replay'&&req.method==='POST'){
-      const dir=path.join(privateDir,'pending');const files=await pendingFiles(dir);
+    if(['/pending','/demo/pending'].includes(req.url)&&req.method==='GET'){const files=await pendingFiles(path.join(privateDir,req.url.startsWith('/demo/')?'demo-pending':'pending'));send(res,200,{anzahl:files.length});return;}
+    if(['/replay','/demo/replay'].includes(req.url)&&req.method==='POST'){
+      const demo=req.url.startsWith('/demo/');
+      const dir=path.join(privateDir,demo?'demo-pending':'pending');const files=await pendingFiles(dir);
       const results=[],failed=[];
       for(const file of files){
         try{
           const event=JSON.parse(await fs.readFile(path.join(dir,file),'utf8'));
-          results.push(await handleEvent(event,false));
+          results.push(await handleEvent(event,demo));
           await fs.rm(path.join(dir,file),{force:true});
         }catch(error){failed.push({file,error:redact(error.message)});}
       }
       send(res,failed.length?207:200,{ok:failed.length===0,results,failed});return;
     }
-    const methods={'/health':'GET','/process':'POST','/demo/process':'POST','/pending':'GET','/replay':'POST'};
+    const methods={'/health':'GET','/process':'POST','/demo/process':'POST','/pending':'GET','/replay':'POST','/demo/pending':'GET','/demo/replay':'POST'};
     if(methods[req.url]){res.setHeader('allow',methods[req.url]);send(res,405,{ok:false,error:'Für diesen Endpunkt ist '+methods[req.url]+' erforderlich.'});return;}
     send(res,404,{ok:false,error:'Unbekannter Endpunkt.'});
   }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}

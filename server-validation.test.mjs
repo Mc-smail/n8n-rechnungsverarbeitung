@@ -103,3 +103,17 @@ test('falsche HTTP-Methode nennt die erlaubte Methode',async t=>{
   assert.equal(response.status,405);assert.equal(response.headers.get('allow'),'POST');await response.json();
   assert.equal((await raw('/does-not-exist')).status,404);
 });
+
+test('Demo-Wiederholungen bleiben von echten Belegen getrennt',async t=>{
+  const {directory,request}=await startService(t);
+  const lock=path.join(directory,'~$demo-rechnungen.xlsx');await fs.writeFile(lock,'test');
+  assert.equal((await request('/demo/process',event())).status,503);
+  assert.equal((await request('/demo/pending')).data.anzahl,1);
+  assert.equal((await request('/pending')).data.anzahl,0);
+  await fs.unlink(lock);
+  const result=await request('/demo/replay',{});
+  assert.equal(result.status,200);assert.equal(result.data.results[0].ergebnis,'geschrieben');
+  assert.equal((await request('/demo/pending')).data.anzahl,0);
+  const ledger=readLedger(await loadWorkbook(path.join(directory,'rechnungen.xlsx')));
+  assert.equal(ledger.Rechnungen.length,0);assert.equal(ledger.Audit_Log.length,0);
+});
