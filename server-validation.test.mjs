@@ -65,3 +65,12 @@ test('zwei gleichzeitige identische Zustellungen schreiben und quittieren genau 
   const ledger=readLedger(await loadWorkbook(path.join(directory,'demo-rechnungen.xlsx')));
   assert.equal(ledger.Rechnungen.length,1);assert.equal(ledger.Audit_Log.length,1);
 });
+
+test('Warteschlangenzähler ignoriert Systemdateien und Verzeichnisse',async t=>{
+  const {directory,request}=await startService(t);
+  const pending=path.join(directory,'private/pending');await fs.mkdir(pending);
+  await fs.writeFile(path.join(pending,'.DS_Store'),'ignored');
+  await fs.mkdir(path.join(pending,'folder.json'));
+  await fs.writeFile(path.join(pending,'saved.json'),'{}');
+  assert.equal((await request('/pending')).data.anzahl,1);
+});

@@ -30,6 +30,10 @@ try {
     await fs.rm(temporary,{force:true});
   }
 }
+async function pendingFiles(directory){
+  try{return (await fs.readdir(directory,{withFileTypes:true})).filter(file=>file.isFile()&&file.name.endsWith('.json')).map(file=>file.name).sort();}
+  catch(error){if(error.code==='ENOENT')return [];throw error;}
+}
 const queues=new Map();
 async function serial(key,fn){const prior=queues.get(key)??Promise.resolve();const next=prior.catch(()=>{}).then(fn);queues.set(key,next);try{return await next;}finally{if(queues.get(key)===next)queues.delete(key);}}
 function authorized(req){const incoming=Buffer.from(String(req.headers['x-belege-token']??'')),expected=Buffer.from(token);return incoming.length===expected.length&&timingSafeEqual(incoming,expected);}
@@ -98,8 +102,8 @@ const server=http.createServer(async(req,res)=>{
     if(req.url==='/health'&&req.method==='GET'){send(res,200,{ok:true,service:'Belege Excel lokal'});return;}
     if(!authorized(req)){send(res,401,{ok:false,error:'Lokale Verbindung ist nicht authentifiziert.'});return;}
     if(['/process','/demo/process'].includes(req.url)&&req.method==='POST'){send(res,200,await handleEvent(await body(req),req.url.startsWith('/demo/')));return;}
-    if(req.url==='/pending'&&req.method==='GET'){const files=await fs.readdir(path.join(privateDir,'pending')).catch(()=>[]);send(res,200,{anzahl:files.length});return;}
-    if(req.url==='/replay'&&req.method==='POST'){const dir=path.join(privateDir,'pending');const files=await fs.readdir(dir).catch(()=>[]);const results=[];for(const file of files.filter(f=>f.endsWith('.json'))){const event=JSON.parse(await fs.readFile(path.join(dir,file),'utf8'));results.push(await handleEvent(event,false));await fs.unlink(path.join(dir,file)).catch(()=>{});}send(res,200,{results});return;}
+    if(req.url==='/pending'&&req.method==='GET'){const files=await pendingFiles(path.join(privateDir,'pending'));send(res,200,{anzahl:files.length});return;}
+    if(req.url==='/replay'&&req.method==='POST'){const dir=path.join(privateDir,'pending');const files=await pendingFiles(dir);const results=[];for(const file of files.filter(f=>f.endsWith('.json'))){const event=JSON.parse(await fs.readFile(path.join(dir,file),'utf8'));results.push(await handleEvent(event,false));await fs.unlink(path.join(dir,file)).catch(()=>{});}send(res,200,{results});return;}
     send(res,404,{error:'Unbekannter Endpunkt.'});
   }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
 });
