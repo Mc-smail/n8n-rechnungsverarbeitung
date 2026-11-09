@@ -28,3 +28,11 @@ test('zu große Anfragen liefern HTTP 413 statt eines Verbindungsabbruchs',async
   assert.equal(response.status,413);await response.json();
   assert.equal((await request('/health')).status,200);
 });
+
+test('fehlende und falsch typisierte Herkunft wird vor dem Schreiben abgewiesen',async t=>{
+  const {request}=await startService(t);
+  for(const input of [null,[],{}, {meta:{filename:'  ',messageId:'1'}},{meta:{filename:{name:'a.pdf'},messageId:'1'}},{meta:{filename:'a.pdf',messageId:42}},{meta:{filename:'a.pdf',messageId:'   '}}]){
+    assert.equal((await request('/process',input)).status,400);
+  }
+  assert.equal((await request('/pending')).data.anzahl,0);
+});
