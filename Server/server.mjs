@@ -33,7 +33,13 @@ const queues=new Map();
 async function serial(key,fn){const prior=queues.get(key)??Promise.resolve();const next=prior.catch(()=>{}).then(fn);queues.set(key,next);try{return await next;}finally{if(queues.get(key)===next)queues.delete(key);}}
 function authorized(req){const incoming=Buffer.from(String(req.headers['x-belege-token']??'')),expected=Buffer.from(token);return incoming.length===expected.length&&timingSafeEqual(incoming,expected);}
 function send(res,status,data){res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(data));}
-async function body(req){let size=0,parts=[];for await(const part of req){size+=part.length;if(size>32*1024*1024)throw Error('Anfrage größer als 32 MB.');parts.push(part);}return JSON.parse(Buffer.concat(parts).toString('utf8'));}
+function httpError(status,message){return Object.assign(new Error(message),{status});}
+async function body(req){
+  let size=0,parts=[];
+  for await(const part of req){size+=part.length;if(size>32*1024*1024)throw Error('Anfrage größer als 32 MB.');parts.push(part);}
+  try{return JSON.parse(Buffer.concat(parts).toString('utf8'));}
+  catch(error){if(error instanceof SyntaxError)throw httpError(400,'Anfrage enthält kein gültiges JSON.');throw error;}
+}
 const redact=value=>String(value).replace(/sk-ant-[A-Za-z0-9_-]+/g,'[API-Schlüssel entfernt]');
 async function handleEvent(input,demo){
   const requestStartedAt=performance.now();
@@ -86,7 +92,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.url==='/pending'&&req.method==='GET'){const files=await fs.readdir(path.join(privateDir,'pending')).catch(()=>[]);send(res,200,{anzahl:files.length});return;}
     if(req.url==='/replay'&&req.method==='POST'){const dir=path.join(privateDir,'pending');const files=await fs.readdir(dir).catch(()=>[]);const results=[];for(const file of files.filter(f=>f.endsWith('.json'))){const event=JSON.parse(await fs.readFile(path.join(dir,file),'utf8'));results.push(await handleEvent(event,false));await fs.unlink(path.join(dir,file)).catch(()=>{});}send(res,200,{results});return;}
     send(res,404,{error:'Unbekannter Endpunkt.'});
-  }catch(error){send(res,503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
+  }catch(error){send(res,error.status??503,{ok:false,error:redact(error.message),hinweis:'Bei Schreibfehlern bleibt das Ereignis lokal gespeichert. Excel schließen und Wiederholung starten.'});}
 });
 server.requestTimeout=180000;
 server.listen(Number(process.env.BELEGE_PORT??5680),'127.0.0.1',()=>{
