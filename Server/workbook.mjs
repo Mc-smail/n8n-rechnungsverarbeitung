@@ -102,10 +102,10 @@ function displayValue(header, value) {
 }
 
 function ledgerValue(header, value) {
+  if (value && typeof value === 'object' && !(value instanceof Date)) value = value.result ?? value.text ?? null;
   if (value instanceof Date) {
     return dates.has(header) ? value.toISOString().slice(0, 10) : value.toISOString();
   }
-  if (value && typeof value === 'object') return value.result ?? value.text ?? null;
   if (identifiers.has(header) && value != null) return String(value);
   return header === 'Ergebnis' ? outcomeKey[value] ?? value : value;
 }
