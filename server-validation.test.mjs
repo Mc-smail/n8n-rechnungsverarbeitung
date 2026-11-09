@@ -36,3 +36,9 @@ test('fehlende und falsch typisierte Herkunft wird vor dem Schreiben abgewiesen'
   }
   assert.equal((await request('/pending')).data.anzahl,0);
 });
+
+test('binäre PDF-Daten müssen als Base64-Text übergeben werden',async t=>{
+  const {request}=await startService(t);
+  for(const pdfBase64 of [42,{},[]])assert.equal((await request('/process',{...event(),pdfBase64})).status,400);
+  assert.equal((await request('/pending')).data.anzahl,0);
+});

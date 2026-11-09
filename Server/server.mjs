@@ -52,6 +52,7 @@ async function handleEvent(input,demo){
   if(!nonempty(input?.meta?.filename))throw httpError(400,'Dateiname muss ein nicht leerer Text sein.');
   if(!nonempty(input.meta.messageId)&&!nonempty(input.meta.submittedAt))throw httpError(400,'Mail-ID oder Upload-ID fehlt; sichere Wiederholung nicht möglich.');
   for(const key of ['messageId','submittedAt'])if(input.meta[key]!=null&&typeof input.meta[key]!=='string')throw httpError(400,key+' muss Text sein.');
+  if(input.pdfBase64!=null&&typeof input.pdfBase64!=='string')throw httpError(400,'pdfBase64 muss Base64-Text sein.');
   const event={meta:input.meta,response:input.response??null,error:input.error?redact(input.error):undefined,mode:demo?'Demodaten':'Claude API'};
   if(input.pdfBase64){const bytes=Buffer.from(input.pdfBase64,'base64');event.pdfHash=hash(bytes);if(!bytes.subarray(0,1024).includes(Buffer.from('%PDF-')))event.error='Datei enthält keinen gültigen PDF-Kopf.';}
   else event.pdfHash=input.pdfHash??hash(JSON.stringify(input.response??input.error));
