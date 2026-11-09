@@ -28,3 +28,13 @@ test('teilweise formatierte Kreditorennamen bleiben beim Namensabgleich erhalten
   const result=processDocument(event(document,2),ledger);
   assert.equal(result.audit.Kreditorabgleich,'Name');assert.equal(result.vendors.length,0);
 });
+
+test('Fremdwährungen werden als solche ausgewiesen und nicht als Euro formatiert',()=>{
+  const workbook=createWorkbook({demo:true});
+  appendResult(workbook,processDocument(event(invoice({waehrung:'USD'})),readLedger(workbook)));
+  const ledger=readLedger(workbook);
+  for(const sheet of ['Rechnungen','Rechnungspositionen','Audit_Log'])assert.equal(ledger[sheet][0]['Währung'],'USD');
+  assert.equal(ledger.Rechnungen[0].Brutto,119);
+  assert.doesNotMatch(cell(workbook,'Rechnungen','Brutto').numFmt,/€/);
+  assert.match(ledger.Audit_Log[0].Probleme,/nicht EUR/);
+});

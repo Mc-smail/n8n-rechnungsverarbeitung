@@ -8,21 +8,21 @@ import {demoObject} from '../fixtures.mjs';
 const preferred = {
   Rechnungen: [
     'Rechnungsnummer', 'Datum', 'Kreditor_Name', 'Belegart', 'Netto', 'USt',
-    'Brutto', 'Zahlbetrag', 'Fälligkeit', 'Status', 'Pruefung_ok',
+    'Brutto', 'Währung', 'Zahlbetrag', 'Fälligkeit', 'Status', 'Pruefung_ok',
     'Abschlaege_brutto', 'ObjektID', 'KreditorID', 'RechnungID',
     'Leistungszeitraum', 'Skonto_Prozent', 'Lohnanteil_35a',
     'Bezug_Rechnungsnummer', 'Rechendifferenz', 'Faelligkeit_Herleitung',
     'Netto_Herleitung', 'Dateiname', 'Mail_Absender',
   ],
   Rechnungspositionen: ['Rechnungsnummer', 'Pos_Nr', 'Beschreibung', 'Menge',
-    'Einheit', 'Einzelpreis', 'Gesamt netto', 'USt-Satz', 'Kategorie', 'USt_Status'],
+    'Einheit', 'Einzelpreis', 'Gesamt netto', 'USt-Satz', 'Kategorie', 'USt_Status', 'Währung'],
   Kreditoren: ['Name', 'Adresse', 'USt-ID', 'Steuernummer', 'IBAN', 'Status',
     'KreditorID', 'Strasse', 'PLZ', 'Ort', 'Angelegt am'],
   Einheiten: ['EinheitID', 'ObjektID', 'Bezeichnung', 'Lage', 'Nutzungsart',
     'Wohnfläche', 'MEA', 'Zimmer'],
   Audit_Log: ['Dateiname', 'Ergebnis', 'Manuell prüfen', 'Prüfhinweis', 'Probleme',
     'Zeitpunkt', 'Herkunft', 'Dauer_s', 'Rechnungsnummer', 'Kreditor',
-    'Belegart', 'Datum', 'Netto', 'USt', 'Brutto', 'Abschlaege_brutto',
+    'Belegart', 'Datum', 'Netto', 'USt', 'Brutto', 'Währung', 'Abschlaege_brutto',
     'Zahlbetrag', 'Herleitungen', 'Verbrauchsstelle', 'Auslesemodus'],
 };
 const sheetNames = ['Rechnungen', 'Rechnungspositionen', 'Kreditoren',
@@ -63,7 +63,7 @@ function columnWidth(header) {
 }
 
 function numberFormat(header) {
-  if (money.has(header)) return '#,##0.00 "€";[Red]-#,##0.00 "€"';
+  if (money.has(header)) return '#,##0.00;[Red]-#,##0.00';
   if (dates.has(header)) return 'dd.mm.yyyy';
   if (timestamps.has(header)) return 'dd.mm.yyyy hh:mm:ss';
   if (header === 'USt-Satz') return '0.0%';
@@ -204,7 +204,7 @@ export function appendResult(workbook, result) {
     Kreditoren: result.vendors,
     Rechnungen: result.invoices.map(invoice => ({...invoice, Kreditor_Name: audit.Kreditor})),
     Rechnungspositionen: result.positions.map(position => ({
-      ...position, Rechnungsnummer: audit.Rechnungsnummer,
+      ...position, Rechnungsnummer: audit.Rechnungsnummer, 'Währung': audit['Währung'],
     })),
     Audit_Log: [{
       ...audit,

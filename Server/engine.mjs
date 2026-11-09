@@ -159,7 +159,7 @@ export function processDocument(event,ledger,{now=new Date().toISOString(),toler
   catch(error){problems.push(error.message);return finish('Fehler','Gespeicherte Claude-Antwort und Original-PDF prüfen; keine Rechnungsdaten wurden geschrieben.');}
   const doc=value;
   audit.Kreditor=clean(doc.kreditor.name);audit.Rechnungsnummer=clean(doc.rechnungsnummer);audit.Belegart=doc.belegart;audit.Datum=doc.datum??'';
-  audit.Netto=doc.netto;audit.USt=doc.ust;audit.Brutto=doc.brutto;
+  audit.Netto=doc.netto;audit.USt=doc.ust;audit.Brutto=doc.brutto;audit['Währung']=clean(doc.waehrung).toUpperCase();
   audit.Verbrauchsstelle=doc.verbrauchsstellen.map(s=>[s.strasse,s.hausnummer,s.plz,s.ort].filter(Boolean).join(' ')+' ['+(s.belegstelle??'')+']').join('; ');
   for(const warning of doc.hinweise.filter(clean)){problems.push(warning);hints.push('Auslesehinweise am Original-PDF prüfen.');}
   if(doc.belegart==='Sonstiges')return finish('kein Beleg');
