@@ -21,3 +21,10 @@ test('Verarbeitungsendpunkte verlangen JSON als Medientyp',async t=>{
     assert.equal(response.status,415);await response.json();
   }
 });
+
+test('zu große Anfragen liefern HTTP 413 statt eines Verbindungsabbruchs',async t=>{
+  const {raw,request}=await startService(t);
+  const response=await raw('/process',{method:'POST',headers:{'content-type':'application/json'},body:' '.repeat(32*1024*1024+1)});
+  assert.equal(response.status,413);await response.json();
+  assert.equal((await request('/health')).status,200);
+});

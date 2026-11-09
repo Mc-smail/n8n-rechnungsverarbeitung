@@ -36,8 +36,12 @@ function send(res,status,data){res.writeHead(status,{'content-type':'application
 function httpError(status,message){return Object.assign(new Error(message),{status});}
 async function body(req){
   if(String(req.headers['content-type']??'').split(';')[0].trim().toLowerCase()!=='application/json')throw httpError(415,'Content-Type muss application/json sein.');
+  const limit=32*1024*1024;
   let size=0,parts=[];
-  for await(const part of req){size+=part.length;if(size>32*1024*1024)throw Error('Anfrage größer als 32 MB.');parts.push(part);}
+  // Drain an oversized request without retaining its body or destroying the
+  // socket: the caller must still receive the useful HTTP 413 response.
+  for await(const part of req){size+=part.length;if(size<=limit)parts.push(part);else parts=[];}
+  if(size>limit)throw httpError(413,'Anfrage größer als 32 MB.');
   try{return JSON.parse(Buffer.concat(parts).toString('utf8'));}
   catch(error){if(error instanceof SyntaxError)throw httpError(400,'Anfrage enthält kein gültiges JSON.');throw error;}
 }
