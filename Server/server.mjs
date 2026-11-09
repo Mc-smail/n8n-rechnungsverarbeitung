@@ -35,6 +35,7 @@ function authorized(req){const incoming=Buffer.from(String(req.headers['x-belege
 function send(res,status,data){res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(data));}
 function httpError(status,message){return Object.assign(new Error(message),{status});}
 async function body(req){
+  if(String(req.headers['content-type']??'').split(';')[0].trim().toLowerCase()!=='application/json')throw httpError(415,'Content-Type muss application/json sein.');
   let size=0,parts=[];
   for await(const part of req){size+=part.length;if(size>32*1024*1024)throw Error('Anfrage größer als 32 MB.');parts.push(part);}
   try{return JSON.parse(Buffer.concat(parts).toString('utf8'));}

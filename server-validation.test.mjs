@@ -13,3 +13,11 @@ test('ungültiges JSON ist ein Eingabefehler und bleibt außerhalb der Schreibwa
   assert.match((await response.json()).error,/JSON/);
   assert.equal((await request('/pending')).data.anzahl,0);
 });
+
+test('Verarbeitungsendpunkte verlangen JSON als Medientyp',async t=>{
+  const {raw}=await startService(t);
+  for(const contentType of ['text/plain','application/octet-stream']){
+    const response=await raw('/process',{method:'POST',headers:{'content-type':contentType},body:'{}'});
+    assert.equal(response.status,415);await response.json();
+  }
+});
