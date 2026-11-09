@@ -1,0 +1,166 @@
+{
+  "name": "Belege - Demotest ohne API-Kosten",
+  "nodes": [
+    {
+      "id": "4870949b-04d8-422e-b5bc-3b13e6062825",
+      "name": "Demo starten",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "91b1c498-478f-456a-a0e8-08336f51a034",
+      "name": "Testhinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -280
+      ],
+      "parameters": {
+        "content": "## Demo mit synthetischen Belegen\nExcel-Dienst starten, Header Auth auswählen und Workflow ausführen. Ergebnis in data/demo-rechnungen.xlsx. Die Demo verwendet acht vorbereitete Ausleseereignisse.",
+        "width": 450,
+        "height": 210
+      }
+    },
+    {
+      "id": "958679e5-3a8f-413d-9cb5-3928abb053e2",
+      "name": "Erfundene Belege",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-1\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-1.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-1\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"belegart\\\":\\\"Rechnung\\\",\\\"rechnungsnummer\\\":\\\"DEMO-R-001\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Musterweg\\\",\\\"hausnummer\\\":\\\"12\\\",\\\"plz\\\":\\\"12345\\\",\\\"ort\\\":\\\"Musterstadt\\\",\\\"bezeichnung\\\":\\\"DEMO WEG Musterweg 12\\\",\\\"belegstelle\\\":\\\"Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":119,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-2\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-2.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-2\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"belegart\\\":\\\"Rechnung\\\",\\\"rechnungsnummer\\\":\\\"DEMO-R-001\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Musterweg\\\",\\\"hausnummer\\\":\\\"12\\\",\\\"plz\\\":\\\"12345\\\",\\\"ort\\\":\\\"Musterstadt\\\",\\\"bezeichnung\\\":\\\"DEMO WEG Musterweg 12\\\",\\\"belegstelle\\\":\\\"Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":119,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-3\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-3.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-3\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"belegart\\\":\\\"Gutschrift\\\",\\\"rechnungsnummer\\\":\\\"DEMO-G-001\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Musterweg\\\",\\\"hausnummer\\\":\\\"12\\\",\\\"plz\\\":\\\"12345\\\",\\\"ort\\\":\\\"Musterstadt\\\",\\\"bezeichnung\\\":\\\"DEMO WEG Musterweg 12\\\",\\\"belegstelle\\\":\\\"Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":119,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-4\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-4.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-4\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"belegart\\\":\\\"Rechnung\\\",\\\"rechnungsnummer\\\":\\\"DEMO-RECHENFEHLER\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Musterweg\\\",\\\"hausnummer\\\":\\\"12\\\",\\\"plz\\\":\\\"12345\\\",\\\"ort\\\":\\\"Musterstadt\\\",\\\"bezeichnung\\\":\\\"DEMO WEG Musterweg 12\\\",\\\"belegstelle\\\":\\\"Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":130,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-5\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-5.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-5\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"belegart\\\":\\\"Rechnung\\\",\\\"rechnungsnummer\\\":\\\"DEMO-UNBEKANNT\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"WEG Musterweg 12, 12345 Musterstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Fremdweg\\\",\\\"hausnummer\\\":\\\"7\\\",\\\"plz\\\":\\\"54321\\\",\\\"ort\\\":\\\"Beispielstadt\\\",\\\"bezeichnung\\\":null,\\\"belegstelle\\\":\\\"Verbrauchsstelle: Fremdweg 7\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":119,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-6\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-6.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-6\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"{\\\"belegart\\\":\\\"Sonstiges\\\",\\\"rechnungsnummer\\\":\\\"DEMO-R-001\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Musterweg\\\",\\\"hausnummer\\\":\\\"12\\\",\\\"plz\\\":\\\"12345\\\",\\\"ort\\\":\\\"Musterstadt\\\",\\\"bezeichnung\\\":\\\"DEMO WEG Musterweg 12\\\",\\\"belegstelle\\\":\\\"Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":119,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-7\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-7.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-7\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"Hier sind die Daten:\\n```json\\n{\\\"belegart\\\":\\\"Rechnung\\\",\\\"rechnungsnummer\\\":\\\"DEMO-JSON\\\",\\\"datum\\\":\\\"2026-10-29\\\",\\\"faelligkeit\\\":\\\"2026-11-12\\\",\\\"waehrung\\\":\\\"EUR\\\",\\\"kreditor\\\":{\\\"name\\\":\\\"DEMO Haustechnik GmbH\\\",\\\"adresse\\\":\\\"Teststraße 3, 12345 Musterstadt\\\",\\\"ust_id\\\":\\\"DE123456789\\\",\\\"iban\\\":\\\"DE89370400440532013000\\\"},\\\"rechnungsadresse\\\":\\\"DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt\\\",\\\"verbrauchsstellen\\\":[{\\\"strasse\\\":\\\"Musterweg\\\",\\\"hausnummer\\\":\\\"12\\\",\\\"plz\\\":\\\"12345\\\",\\\"ort\\\":\\\"Musterstadt\\\",\\\"bezeichnung\\\":\\\"DEMO WEG Musterweg 12\\\",\\\"belegstelle\\\":\\\"Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1\\\"}],\\\"netto\\\":100,\\\"ust\\\":19,\\\"brutto\\\":119,\\\"positionen\\\":[{\\\"beschreibung\\\":\\\"DEMO Wartung\\\",\\\"menge\\\":2,\\\"einheit\\\":\\\"Std.\\\",\\\"einzelpreis\\\":50,\\\"gesamt_netto\\\":100,\\\"ust_satz\\\":19,\\\"kategorie\\\":\\\"Wartung\\\"}],\\\"hinweise\\\":[]}\\n```\"}]}},{\"meta\":{\"mailbox\":\"DEMO – keine echte Mailbox\",\"messageId\":\"demo-mail-8\",\"date\":\"2026-10-29\",\"from\":\"demo@example.invalid\",\"subject\":\"Erfundener Testbeleg\",\"filename\":\"DEMO-8.pdf\",\"attachmentIndex\":0},\"pdfHash\":\"demo-pdf-8\",\"response\":{\"model\":\"DEMO – keine API-Anfrage\",\"stop_reason\":\"end_turn\",\"usage\":{\"input_tokens\":0,\"output_tokens\":0},\"content\":[{\"type\":\"text\",\"text\":\"Keine lesbare JSON-Antwort {\"}]}}].map(value=>({json:value}));"
+      }
+    },
+    {
+      "id": "adc9a613-50ce-41f1-9024-77afdf29901b",
+      "name": "Einzeln testen",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        490,
+        0
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "1004f1dc-438b-41dd-9c4f-94456ef47713",
+      "name": "Demo pruefen und speichern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5680/demo/process",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "6f884595-da0e-4da1-91bb-6428bae021b5",
+      "name": "Testergebnis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -120
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows=$input.all().map(item=>item.json);const anzahl={};for(const row of rows)anzahl[row.ergebnis??'Ergebnis']=(anzahl[row.ergebnis??'Ergebnis']??0)+1;return [{json:{belege:rows.length,ergebnisse:anzahl,manuellPruefen:rows.filter(row=>row.manuellPruefen).map(row=>({datei:row.datei,rechnungId:row.rechnungId,pruefhinweis:row.pruefhinweis,probleme:row.probleme})),hinweis:'Die Details stehen je Beleg in Audit_Log.'}}];"
+      }
+    }
+  ],
+  "connections": {
+    "Demo starten": {
+      "main": [
+        [
+          {
+            "node": "Erfundene Belege",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Erfundene Belege": {
+      "main": [
+        [
+          {
+            "node": "Einzeln testen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Einzeln testen": {
+      "main": [
+        [
+          {
+            "node": "Testergebnis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Demo pruefen und speichern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demo pruefen und speichern": {
+      "main": [
+        [
+          {
+            "node": "Einzeln testen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveExecutionProgress": false,
+    "executionTimeout": 1800
+  },
+  "active": false,
+  "pinData": {}
+}

@@ -1,0 +1,13 @@
+node_modules/
+data/
+private/
+outputs/
+test-output/
+.env
+.env.*
+.DS_Store
+*.log
+*.sqlite*
+*.xlsx
+*.pdf
+*.processing-lock

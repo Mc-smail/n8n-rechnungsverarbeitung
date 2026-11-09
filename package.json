@@ -1,0 +1,16 @@
+{
+  "name": "n8n-rechnungsverarbeitung",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PDF-Rechnungen mit n8n und Claude auslesen, prüfen und in Excel erfassen",
+  "scripts": {
+    "start": "node Server/server.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "exceljs": "4.4.0"
+  }
+}

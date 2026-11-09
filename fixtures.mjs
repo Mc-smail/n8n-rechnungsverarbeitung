@@ -1,0 +1,11 @@
+export const demoObject={ObjektID:'DEMO-OBJ-001',Bezeichnung:'DEMO WEG Musterweg 12',Verwaltungsart:'WEG',Adresse:'Musterweg 12, 12345 Musterstadt','Straße':'Musterweg',Hausnummer:'12',PLZ:'12345',Ort:'Musterstadt',Status:'aktiv'};
+export function invoice(patch={}){
+  return {...{belegart:'Rechnung',rechnungsnummer:'DEMO-R-001',datum:'2026-10-29',faelligkeit:'2026-11-12',waehrung:'EUR',kreditor:{name:'DEMO Haustechnik GmbH',adresse:'Teststraße 3, 12345 Musterstadt',ust_id:'DE123456789',iban:'DE89370400440532013000'},rechnungsadresse:'DEMO Verwaltung, Verwaltungsweg 99, 54321 Beispielstadt',verbrauchsstellen:[{strasse:'Musterweg',hausnummer:'12',plz:'12345',ort:'Musterstadt',bezeichnung:'DEMO WEG Musterweg 12',belegstelle:'Verbrauchsstelle: Musterweg 12, 12345 Musterstadt, Seite 1'}],netto:100,ust:19,brutto:119,positionen:[{beschreibung:'DEMO Wartung',menge:2,einheit:'Std.',einzelpreis:50,gesamt_netto:100,ust_satz:19,kategorie:'Wartung'}],hinweise:[]},...patch};
+}
+export function event(document=invoice(),index=1){return {meta:{mailbox:'DEMO – keine echte Mailbox',messageId:'demo-mail-'+index,date:'2026-10-29',from:'demo@example.invalid',subject:'Erfundener Testbeleg',filename:'DEMO-'+index+'.pdf',attachmentIndex:0},pdfHash:'demo-pdf-'+index,response:{model:'DEMO – keine API-Anfrage',stop_reason:'end_turn',usage:{input_tokens:0,output_tokens:0},content:[{type:'text',text:JSON.stringify(document)}]}};}
+export function demoEvents(){
+  const unknown=invoice({rechnungsnummer:'DEMO-UNBEKANNT',rechnungsadresse:'WEG Musterweg 12, 12345 Musterstadt',verbrauchsstellen:[{strasse:'Fremdweg',hausnummer:'7',plz:'54321',ort:'Beispielstadt',bezeichnung:null,belegstelle:'Verbrauchsstelle: Fremdweg 7'}]});
+  const fence=event(invoice({rechnungsnummer:'DEMO-JSON'}),7);fence.response.content[0].text='Hier sind die Daten:\n```json\n'+fence.response.content[0].text+'\n```';
+  const broken=event(invoice(),8);broken.response.content[0].text='Keine lesbare JSON-Antwort {';
+  return [event(invoice(),1),event(invoice(),2),event(invoice({rechnungsnummer:'DEMO-G-001',belegart:'Gutschrift'}),3),event(invoice({rechnungsnummer:'DEMO-RECHENFEHLER',brutto:130}),4),event(unknown,5),event(invoice({belegart:'Sonstiges'}),6),fence,broken];
+}

@@ -1,0 +1,84 @@
+{
+  "name": "Belege - Excel-Schreibfehler wiederholen",
+  "nodes": [
+    {
+      "id": "d4c99ccc-5bd5-4dc0-9227-1f2bad77b3b8",
+      "name": "Gespeicherte Ereignisse wiederholen",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "e02a22ec-4cd9-419c-8b21-ffc399ba3432",
+      "name": "Excel erneut schreiben",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5680/replay",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "63ae9663-c722-4cc8-a013-68e39309a40a",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -230
+      ],
+      "parameters": {
+        "content": "## Offene Schreibvorgänge wiederholen\nExcel schließen, Header Auth auswählen und Workflow starten. Der Dienst verwendet gespeicherte Auslesedaten.",
+        "width": 450,
+        "height": 160
+      }
+    }
+  ],
+  "connections": {
+    "Gespeicherte Ereignisse wiederholen": {
+      "main": [
+        [
+          {
+            "node": "Excel erneut schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveExecutionProgress": false,
+    "executionTimeout": 1800
+  },
+  "active": false,
+  "pinData": {}
+}
